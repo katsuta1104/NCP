@@ -25,13 +25,54 @@ class XORshift:
         #長さNの各要素がmin_n以上max_n以下の数列を生成する
         return [self.randint(min_n, max_n) for _ in range(N)]
 
+
+
+def generate(seed):
+  xs = XORshift(seed)
+  
+  if seed < 100:
+    N = xs.randint(1,10)
+    min_n = 1
+    max_n = 10
+  
+  elif seed < 1000:
+    N = xs.randint(1,50)
+    min_n = 1
+    max_n = 100
+  
+  #これより下はジャッジ想定
+  elif seed < 10000:
+    N = xs.randint(1,1000)
+    min_n = 1
+    max_n = 10**9
+  
+  elif seed < 100000:
+    N = xs.randint(1,3000)
+    min_n = 1
+    max_n = 10**9
+  
+  elif seed < 1000000:
+    N = xs.randint(1,50000)
+    min_n = 1
+    max_n = 10**9
+  
+  elif seed < 10**10:
+    N = xs.randint(1,2*10**5)
+    min_n = 1
+    max_n = 10**9
+  
+  else:
+    N = xs.randint(1,10**6)
+    min_n = 1
+    max_n = 10**9
+  
+
+  A = xs.sequence(N, min_n, max_n)
+  
+  return N,A
+
 # 使用例
-seed = 3156431638
-xs = XORshift(seed)
-
-min_n = 1
-max_n = 10**9
-
-N = 100
-A = xs.sequence(N, min_n, max_n)
+seed = 97
+N,A = generate(seed)
+print(N)
 print(A)
