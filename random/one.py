@@ -7,7 +7,7 @@ class XORshift:
   def next(self):
     x = self.state
     x ^= (x << 13) & 0xffffffffffffffff
-    x ^ (x >> 7)
+    x ^= (x >> 7)
     x ^= (x << 17) & 0xffffffffffffffff
     self.state = x & 0xffffffffffffffff
     return self.state
