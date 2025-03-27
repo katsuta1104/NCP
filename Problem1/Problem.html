@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <script type="text/javascript"
+    src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      TeX: { equationNumbers: { autoNumber: "AMS" }},
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        processEscapes: true
+      },
+      "HTML-CSS": { matchFontHeight: false },
+      displayAlign: "left",
+      displayIndent: "2em"
+    });
+  </script>
+  <style>
+    html {
+      font-size: 18px;
+    }
+    body {
+      background-color: #f5f5f5;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      font-family: "ヒラギノ角ゴ ProN W3";
+    }
+    .container {
+      background-color: white;
+      width: 80%;
+      min-height: 80vh;
+      padding-left: 40px;
+      padding-right: 40px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    /* 入出力例のスタイル */
+    .code-box {
+      background-color: #f5f5f5;
+      padding: 3px 10px 3px 10px;
+      border-radius: 1px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #a9a9a9;
+    }
+    /* コピーボタンのスタイル */
+    .example-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .copy-btn {
+      align-self: flex-end;
+      position: absolute;
+      background-color: white;
+      color: black;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 0;
+      margin-right: 0;
+      border: 1px solid #a9a9a9;
+    }
+    .copy-btn:hover {
+      background-color: white;
+    }
+    .submit-btn, .All-submit-btn {
+      background-color: #4682B4;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    .block {
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .title {
+      border-bottom: 1px solid #eee;
+    }
+    .submit-block {
+      padding-bottom: 20px;
+      border-bottom: 1px dotted #eee;
+    }
+    textarea {
+      font-size: 18px;
+      width: 99%;
+      padding: 3px;
+    }
+    h1 {
+      font-size: 25px;
+    }
+    .air {
+      height: 50px;
+    }
+    .URL {
+      text-decoration: none;
+      color: black;
+      border: 1px solid #a9a9a9;
+      font-size: 13px;
+      font-weight: normal;
+      display: inline-block;
+      width: 45px;
+      height: 30px;
+      text-align: center;
+      line-height: 30px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+    .result-box {
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 20px;
+      display: inline-block;
+    }
+    .ac-box {
+      background-color: #00CC00; /* AC のときは緑 */
+    }
+    .wa-box {
+      background-color: orange; /* WA のときはオレンジ */
+    }
+
+	 .apply-mathjax{
+	 	line-height: 0.8em;
+	}
+	
+	pre{
+		overflow-x: auto;
+	}
+	@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+  </style>
+  <script>
+    function copyToClipboard(button) {
+      let preTag = button.previousElementSibling; // ボタンの直前の pre タグを取得
+      let text = preTag.innerText; // pre 内のテキストを取得
+
+      navigator.clipboard.writeText(text).then(() => {
+        button.innerText = "Copied!"; // ボタンのテキスト変更
+        setTimeout(() => button.innerText = "Copy", 1500); // 1.5秒後に戻す
+      }).catch(err => {
+        console.error("Missed:", err);
+      });
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="air"></div>
+    <div class="title">
+      <h1>
+        0001 - Sum Expected Value 
+        <a class="URL" href="//sites.google.com/view/nanyocompetitiveprogramming/%E5%95%8F%E9%A1%8C%E4%B8%80%E8%A6%A7/0001/editorial">解説</a>
+      </h1>
+    </div>
+
+
+
+    <div class="block">
+      <h2>問題文</h2>
+      <p>
+        $N$個の要素からなる数列$A = \{A_1, A_2, \dots, A_N\}$があります。<br>
+        この中から$M$個の整数を選んだ時、その総和の期待値はいくつになりますか。<br>
+        ただし、答えはかなり大きくなることがあるので、$998244353$で割ったあまりを出力してください。
+      </p>
+    </div>
+
+
+
+    <div class="block">
+      <h2>制約</h2>
+      <ul>
+        <li>$1\le N \le 2 \times 10^5$</li>
+        <li>$1\le M \le 10^9$</li>
+        <li>$1\le A_i \le 10^9$</li>
+        <li>入力は全て整数</li>
+      </ul>
+    </div>
+
+
+
+    <div class="block">
+      <h2>入力</h2>
+      <p>サンプル入力は以下の形式で与えられる。</p>
+      <div class="code-box">
+        <span class="apply-mathjax">$N \ \ M$
+$A_1 \ \ A_2 \ \ \dots \ \ A_N$</span>
+
+      </div>
+      <p>
+        テストケースについては、seed値によるランダム生成を用いてジャッジする。以下から、生成コードを入手されたい。
+      </p>
+      <details>
+        <summary>コード(Python)</summary>
+        <div class="code-box">
+          <pre id="code-block-py"></pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <script>
+          var code = `
+class XORshift:
+    def __init__(self, seed):
+        self.state = seed & 0xffffffffffffffff
+        if self.state == 0:
+            self.state = 88172645463325252
+
+    def next(self):
+        x = self.state
+        x ^= (x << 13) & 0xffffffffffffffff
+        x ^= (x >> 7)
+        x ^= (x << 17) & 0xffffffffffffffff
+        self.state = x & 0xffffffffffffffff
+        return self.state
+
+    def randint(self, min_n, max_n):
+        range_size = max_n - min_n + 1
+        max_val = 0xffffffffffffffff
+        threshold = (max_val+1) - ((max_val+1) % range_size)
+        while True:
+            r = self.next()
+            if r < threshold:
+                return min_n + (r % range_size)
+    
+    def sequence(self, N, min_n, max_n):
+        #長さNの各要素がmin_n以上max_n以下の数列を生成する
+        return [self.randint(min_n, max_n) for _ in range(N)]
+
+def generate(seed):
+  xs = XORshift(seed)
+  
+  if seed < 100:
+    N = xs.randint(1,10)
+    min_n = 1
+    max_n = 10
+  elif seed < 1000:
+    N = xs.randint(1,50)
+    min_n = 1
+    max_n = 100
+  #これより下はジャッジ想定
+  elif seed < 10000:
+    N = xs.randint(1,1000)
+    min_n = 1
+    max_n = 10**9
+  elif seed < 100000:
+    N = xs.randint(1,3000)
+    min_n = 1
+    max_n = 10**9
+  elif seed < 1000000:
+    N = xs.randint(1,50000)
+    min_n = 1
+    max_n = 10**9
+  elif seed < 10**10:
+    N = xs.randint(1,2*10**5)
+    min_n = 1
+    max_n = 10**9
+  else:
+    N = xs.randint(1,10**6)
+    min_n = 1
+    max_n = 10**9
+
+  A = xs.sequence(N, min_n, max_n)
+  M = xs.randint(1,10**9)
+  
+  return N, M, A
+
+# 使用例
+seed = 97
+N, M, A = generate(seed)`;
+          document.getElementById('code-block-py').textContent = code;
+        </script>
+      </details>
+      <details>
+        <summary>コード(C++)</summary>
+        <div class="code-box">
+          <pre id="code-block"></pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <script>
+          var code = `
+#include <iostream>
+#include <vector>
+#include <cstdint>
+#include <utility> // for std::pair
+
+using namespace std;
+
+class XORshift {
+private:
+    uint64_t state;
+public:
+    XORshift(uint64_t seed) {
+        state = seed & 0xffffffffffffffffULL;
+        if (state == 0) {
+            state = 88172645463325252ULL;
+        }
+    }
+
+    uint64_t next() {
+        uint64_t x = state;
+        x ^= (x << 13);
+        x ^= (x >> 7);
+        x ^= (x << 17);
+        state = x;
+        return state;
+    }
+
+    uint64_t randint(uint64_t min_n, uint64_t max_n) {
+        uint64_t range_size = max_n - min_n + 1;
+        __uint128_t full = ((__uint128_t)1 << 64);
+        __uint128_t mod = full % range_size;
+        __uint128_t threshold = full - mod;
+        while (true) {
+            uint64_t r = next();
+            if ((__uint128_t)r < threshold) {
+                return min_n + (r % range_size);
+            }
+        }
+    }
+
+    // 長さ N の各要素が [min_n, max_n] の数列を生成
+    vector<uint64_t> sequence(uint64_t N, uint64_t min_n, uint64_t max_n) {
+        vector<uint64_t> seq;
+        seq.reserve(N);
+        for (uint64_t i = 0; i < N; i++) {
+            seq.push_back(randint(min_n, max_n));
+        }
+        return seq;
+    }
+};
+
+pair<uint64_t, pair<vector<uint64_t>, uint64_t>> generate(uint64_t seed) {
+    XORshift xs(seed);
+    uint64_t N, M, min_n, max_n;
+    
+    if (seed < 100ULL) {
+        N = xs.randint(1, 10);
+        min_n = 1;
+        max_n = 10;
+    }
+    else if (seed < 1000ULL) {
+        N = xs.randint(1, 50);
+        min_n = 1;
+        max_n = 100;
+    }
+    // 以下、ジャッジ想定
+    else if (seed < 10000ULL) {
+        N = xs.randint(1, 1000);
+        min_n = 1;
+        max_n = 1000000000ULL; // 10^9
+    }
+    else if (seed < 100000ULL) {
+        N = xs.randint(1, 3000);
+        min_n = 1;
+        max_n = 1000000000ULL;
+    }
+    else if (seed < 1000000ULL) {
+        N = xs.randint(1, 50000);
+        min_n = 1;
+        max_n = 1000000000ULL;
+    }
+    else if (seed < 10000000000ULL) { // 10^10
+        N = xs.randint(1, 200000);
+        min_n = 1;
+        max_n = 1000000000ULL;
+    }
+    else {
+        N = xs.randint(1, 1000000);
+        min_n = 1;
+        max_n = 1000000000ULL;
+    }
+    
+    vector<uint64_t> A = xs.sequence(N, min_n, max_n);
+    M = xs.randint(1, 1000000000ULL);
+    return make_pair(N, make_pair(A, M));
+}
+
+int main() {
+    // 使用例
+    uint64_t seed = 97ULL;
+    auto result = generate(seed);
+    uint64_t N = result.first;
+    uint64_t M = result.second.second;
+    vector<uint64_t> A = result.second.first;
+    
+    cout << N << " " << M << endl;
+    for (auto num : A) {
+        cout << num << " ";
+    }
+    cout << endl;
+
+    return 0;
+}`;
+          document.getElementById('code-block').textContent = code;
+        </script>
+      </details>
+
+
+      <h2>出力</h2>
+      <p>答えを1行で出力せよ。</p>
+    </div>
+
+
+
+    <div class="block">
+      <h2>入力例1</h2>
+      <div class="code-box">
+        <pre data-mathjax>
+3 2
+2 3 5</pre>
+        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+      <h2>出力例1</h2>
+      <div class="code-box">
+        <pre data-mathjax>665496242</pre>
+        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+      <p>
+        $998244353$であまりを取ることを忘れないでください。
+      </p>
+
+
+      <h2>入力例2</h2>
+      <div class="code-box">
+        <pre data-mathjax>
+5 10
+10 24 11 28 19</pre>
+        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+      <h2>出力例2</h2>
+      <div class="code-box">
+        <pre data-mathjax>184</pre>
+        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+    </div>
+
+
+
+    <div class="block">
+      <h2>提出</h2>
+
+
+      <div class="submit-block">
+        <h3>input_01</h3>
+        <div class="code-box">
+          <pre>9</pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_01</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+
+
+      <div class="submit-block">
+        <h3>input_02</h3>
+        <div class="code-box">
+          <pre>43</pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_02</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+
+
+      <div class="submit-block">
+        <h3>input_03</h3>
+        <div class="code-box">
+          <pre>551</pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_03</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+
+
+      <div class="submit-block">
+        <h3>input_04</h3>
+        <div class="code-box">
+          <pre>1789</pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_04</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+
+
+      <div class="submit-block">
+        <h3>input_05</h3>
+        <div class="code-box">
+          <pre>7496</pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_05</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+
+
+      <div class="submit-block">
+        <h3>input_06</h3>
+        <div class="code-box">
+          <pre>11465</pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_06</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+
+
+      <div class="submit-block">
+        <h3>input_07</h3>
+        <div class="code-box">
+          <pre>559754</pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_07</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+
+
+      <div class="submit-block">
+        <h3>input_08</h3>
+        <div class="code-box">
+          <pre>2485748</pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_08</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+
+
+      <div class="submit-block">
+        <h3>input_09</h3>
+        <div class="code-box">
+          <pre>25672836</pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_09</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+      <button class="submit-btn">提出</button>
+    </div>
+
+
+
+
+    <div class="block">
+      <h2>一括提出</h2>
+      <p>
+        各行に各テストケースの実行結果を貼り付けることで、一括で提出が可能です。
+      </p>
+      <h3>seed値</h3>
+      <div class="code-box">
+        <pre>9 43 551 1789 7496 11465 559754 2485748 25672836</pre>
+        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+      <div class="air"></div>
+      <textarea name="All-submit" rows="15" placeholder="複数行に渡って出力"></textarea>
+      <button class="All-submit-btn">提出</button>
+    </div>
+    <div class="air"></div>
+  </div>
+</body>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      MathJax.typesetPromise();
+  });
+
+  // 各テストケースの正解をオブジェクトで用意（キーはケース番号）
+  const expectedAnswers = {
+    "01": "519000292",
+    "02": "607981449",
+    "03": "289684429",
+    "04": "482436504",
+    "05": "626326319",
+    "06": "868677159",
+    "07": "329741037",
+    "08": "738191240",
+    "09": "944892067"
+  };
+
+  document.querySelector('.submit-btn').addEventListener('click', function() {
+    // 既に表示されている結果エリアを削除（再提出時の重複防止）
+    document.querySelectorAll('.result-msg').forEach(el => el.remove());
+    document.querySelectorAll('.overall-result').forEach(el => el.remove());
+
+    // 各テストケースの submit-block について処理
+    const submitBlocks = document.querySelectorAll('.submit-block');
+    let overallCorrect = true;
+    let WA_cnt = 0; // 間違ったテストケース数
+    let AC_cnt = 0; // 正解したテストケース数
+
+    submitBlocks.forEach(block => {
+      // 各ブロック内の h3 要素（例："input_01"）からケース番号を抽出
+      const header = block.querySelector('h3');
+      let caseText = header ? header.textContent.trim() : "";
+      const match = caseText.match(/_(\d{2})/); // "01" 部分を抽出
+      if (!match) return;
+      const caseNum = match[1];
+
+      // ユーザーが入力した出力（textarea）の値を取得
+      const textarea = block.querySelector('textarea');
+      const userOutput = textarea ? textarea.value.trim() : "";
+
+      // 正解と比較し、結果を表示するボックスを作成
+      const correct = expectedAnswers[caseNum];
+      const resultMsg = document.createElement("div");
+      resultMsg.className = "result-msg result-box"; // 基本のスタイルを適用
+
+      if (userOutput === correct) {
+        resultMsg.textContent = `AC`;
+        resultMsg.classList.add("ac-box"); // AC の場合は緑
+        AC_cnt += 1;
+      } else {
+        resultMsg.textContent = `WA`;
+        resultMsg.classList.add("wa-box"); // WA の場合はオレンジ
+        overallCorrect = false;
+        WA_cnt += 1;
+      }
+      
+      // 各 submit-block の最後に結果ボックスを追加
+      block.appendChild(resultMsg);
+    });
+
+    // 全体の結果を提出ボタンの横に表示
+    const overallDiv = document.createElement("div");
+    overallDiv.className = "overall-result result-box";
+    
+    if (WA_cnt === 0) {
+      overallDiv.textContent = "AC";
+      overallDiv.classList.add("ac-box"); // 全体がACなら緑
+    } else {
+      overallDiv.textContent = `${WA_cnt}/${AC_cnt + WA_cnt} WA`;
+      overallDiv.classList.add("wa-box"); // WAがある場合はオレンジ
+    }
+    
+    overallDiv.style.display = "inline-block";
+    overallDiv.style.marginLeft = "20px";
+    document.querySelector('.submit-btn').insertAdjacentElement('afterend', overallDiv);
+  });
+
+  document.querySelector('.All-submit-btn').addEventListener('click', function() {
+    // 一括提出テキストエリアの内容を取得
+    const bulkTextarea = document.querySelector('textarea[name="All-submit"]');
+    // 改行ごとに分割し、各行の両端の空白を削除
+    const userLines = bulkTextarea.value.trim().split(/\r?\n/).map(line => line.trim());
+    // 空行を除外
+    const filteredLines = userLines.filter(line => line !== "");
+
+    // 期待値を配列として用意
+    const expectedArr = Object.keys(expectedAnswers)
+      .sort()
+      .map(key => expectedAnswers[key]);
+
+    let overallCorrect = true;
+    let resultHtml = "";
+
+    // まず行数が一致しているか確認
+    if (filteredLines.length !== expectedArr.length) {
+      overallCorrect = false;
+      resultHtml += `出力行数が異なります。（期待：${expectedArr.length}行、あなたは：${filteredLines.length}行）<br>`;
+    }
+    
+    // 各行ごとに正誤を判定
+    for (let i = 0; i < expectedArr.length; i++) {
+      if (filteredLines[i] === expectedArr[i]) {
+        resultHtml += `テストケース ${i+1}: AC<br>`;
+      } else {
+        resultHtml += `テストケース ${i+1}: WA<br>`;
+        overallCorrect = false;
+      }
+    }
+    
+    // 結果表示用のエリア（なければ作成）
+    let overallDiv = document.querySelector('.overall-result.bulk');
+    if (!overallDiv) {
+      overallDiv = document.createElement("div");
+      overallDiv.className = "overall-result bulk result-box";
+      bulkTextarea.parentElement.appendChild(overallDiv);
+    }
+    
+    // 全体の結果を表示
+    if (overallCorrect) {
+      overallDiv.innerHTML = "AC";
+      overallDiv.classList.remove("wa-box");
+      overallDiv.classList.add("ac-box");
+    } else {
+      overallDiv.innerHTML = resultHtml;
+      overallDiv.classList.remove("ac-box");
+      overallDiv.classList.add("wa-box");
+    }
+  });
+</script>
+</html>
