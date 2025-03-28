@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>問題リスト</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid #a9a9a9;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .index-col {
+      width: 30px;
+    }
+    .name-col {
+      width: calc(100% - 30px - 80px - 80px);
+    }
+    .diff-col {
+      width: 80px;
+      text-align: center;
+      font-weight: bold;
+    }
+    a {
+      text-decoration: none;
+      font-size: 20px;
+      color: #136FFF;
+    }
+  </style>
+</head>
+<body>
+  <h1>問題一覧</h1>
+  <div id="problem-list"></div>
+
+  <script>
+    // diff値に応じた背景色を返す関数
+    function getDiffColor(diff) {
+      diff = Number(diff);
+      if(diff < 400) return "#C0C0C0";
+      else if(diff < 800) return "#A0522D";
+      else if(diff < 1200) return "#00CC00";
+      else if(diff < 1600) return "cyan";
+      else if(diff < 2000) return "#4689FF";
+      else if(diff < 2400) return "yellow";
+      else if(diff < 2800) return "#FF773E";
+      else return "red";
+    }
+
+    // 各問題オブジェクトに diff プロパティを追加
+    const problemList = [
+      { id: "P-0001", name: "Sum Expected Value", diff: "500", link: "https://sites.google.com/view/nanyocompetitiveprogramming/%E5%95%8F%E9%A1%8C%E4%B8%80%E8%A6%A7/0001/problem" },
+      { id: "0002", name: "None", diff: "-1", link: "https://www.example.com/problem2" },
+      { id: "0003", name: "None", diff: "-1", link: "https://www.example.com/problem3" }
+    ];
+
+    const problemListDiv = document.getElementById("problem-list");
+
+    if (problemList.length === 0) {
+      problemListDiv.innerHTML = "<p>現在公開されている問題は存在しません。</p>";
+    } else {
+      const table = document.createElement("table");
+      const headerRow = table.insertRow();
+      // ヘッダー行に「問題番号」「問題名」「推定diff」を追加
+      ["問題番号", "問題名", "推定diff"].forEach(headerText => {
+        const headerCell = headerRow.insertCell();
+        headerCell.textContent = headerText;
+      });
+
+      problemList.forEach(problem => {
+        const row = table.insertRow();
+
+        // id に "P" が含まれていれば背景色を淡いグレーに設定（例：#f5f5f5）、そうでなければ白色
+        if (problem.id.toString().includes("P")) {
+          row.style.backgroundColor = "#EEEEEE";
+        } else {
+          row.style.backgroundColor = "white";
+        }
+
+        // 問題番号のセル
+        const idCell = row.insertCell();
+        idCell.textContent = problem.id;
+        idCell.classList.add("index-col");
+
+        // 問題名のセル
+        const nameCell = row.insertCell();
+        nameCell.classList.add("name-col");
+
+        const link = document.createElement("a");
+        link.href = problem.link;
+        link.textContent = problem.name;
+        nameCell.appendChild(link);
+
+        // 推定diffのセル
+        const diffCell = row.insertCell();
+        diffCell.textContent = problem.diff;
+        diffCell.classList.add("diff-col");
+
+        // diff値に応じた背景色を設定
+        diffCell.style.backgroundColor = getDiffColor(problem.diff);
+      });
+
+      problemListDiv.appendChild(table);
+    }
+  </script>
+</body>
+</html>
