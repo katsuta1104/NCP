@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<script type="text/javascript"
+  src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" }},
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { matchFontHeight: false },
+    displayAlign: "left",
+    displayIndent: "2em"
+  });
+</script>
+
+<style>
+html {
+  font-size: 18px;
+}
+body {
+  background-color: #f5f5f5;
+  margin: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-family: "ヒラギノ角ゴ ProN W3";
+
+}
+
+.container {
+  background-color: white;
+  width: 80%;
+  min-height: 80vh;
+  padding-left: 40px;
+  padding-right: 40px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+
+/* 入出力例のスタイル */
+.code-box {
+  background-color: #f5f5f5;
+  padding: 3px;
+  padding-left : 10px;
+  border-radius: 1px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #a9a9a9;
+  
+}
+
+/* コピーボタンのスタイル */
+
+.example-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copy-btn {
+  align-self: flex-end;
+  position : absolute;
+  background-color: white;
+  color: black;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 0px;
+  margin-right: 0px;
+  border: 1px solid #a9a9a9;
+}
+
+
+.copy-btn:hover {
+  background-color: white;
+}
+
+.submit-btn{
+  background-color: #4682B4;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.block{
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.title h1 {
+  margin: 0;
+  font-size: 25px;
+  display: inline;
+}
+
+.title .URL {
+  margin-left: 10px; /* 調整用の余白（不要なら 0 に） */
+  font-weight: bold;
+}
+
+
+
+.submit-block{
+  padding-bottom: 20px;
+  border-bottom: 1px dotted #eee;
+}
+
+
+textarea{
+  font-size: 18px;
+  width: 99%;
+  padding: 3px;
+}
+
+h1{
+  font-size: 25px;
+}
+
+.air{
+  height: 50px;
+}
+
+.URL{
+  text-decoration: none;
+  font-size: 25px;
+  color: #136FFF;
+}
+
+.writer{
+  color: #a9a9a9;
+  font-size: 15px;
+}
+
+.pre{
+  overflow-x: auto
+}
+
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+</style>
+
+<script>
+function copyToClipboard(button) {
+  let preTag = button.previousElementSibling; // ボタンの直前の pre タグを取得
+  let text = preTag.innerText; // pre 内のテキストを取得
+
+  navigator.clipboard.writeText(text).then(() => {
+    button.innerText = "Copied!"; // ボタンのテキスト変更
+    setTimeout(() => button.innerText = "Copy", 1500); // 1.5秒後に戻す
+  }).catch(err => {
+    console.error("Missed:", err);
+  });
+}
+</script>
+</head>
+
+
+
+<body>
+<div class="container">
+	<div class = "air"></div>
+	<div class = "title">
+		<h1>作問について</h1>
+	</div>
+	
+	<div class = "air"></div>
+	
+	以下のリンクに示すテンプレートを用いて作問ができます。
+	<a href = "https://github.com/katsuta1104/NCP/tree/main/Template/CompetitiveProgramming">https://github.com/katsuta1104/NCP/tree/main/Template/CompetitiveProgramming</a>
+	
+	<br><br>
+	基本的にはテンプレート内にあるコメントに従ってください。
+	わからないことがある場合は、<a href = "https://sites.google.com/view/nanyocompetitiveprogramming/%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B">お問い合わせ</a>からご連絡ください。
+	<br><br>
+	問題内にある解説リンク、解説内にある問題リンクはこちらで設定しますので触らなくて大丈夫です。ランダム生成コードは次のリンクから取得できます。
+	<ul>
+		<li><a href = "https://github.com/katsuta1104/NCP/blob/main/random/generater.py">Python</a></li>
+		<li><a href = "https://github.com/katsuta1104/NCP/blob/main/random/generater.cpp">C++</a></li>
+	</ul>
+	
+	<br><br>
+	なお、一番目の問題についてはコードを公開しているので、そちらを参考にしていただいても構いません。
+	<ul>
+		<li><a href = "https://github.com/katsuta1104/NCP/blob/main/Problem1/Problem.html">問題コード</a></li>
+		<li><a href = "https://github.com/katsuta1104/NCP/blob/main/Problem1/Editorial.html">解説コード</a></li>
+	</ul>
+	
+	<br><br>
+	
+	
+	<h3>完成した問題・解説についてはどうすれば良いのか？</h3>
+	<a href = "https://sites.google.com/view/nanyocompetitiveprogramming/%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B">お問い合わせ</a>からメールで問題・解説コードを共に添付して送ってください。発見次第、対応させていただきます。
+	<br><br>
+	なお、問題や解説をこちらが勝手に変更することがあります。ご理解をお願いします。
+	
+	<br><br>
+	ランダム生成コードが書けない場合はその旨を報告してください。こちらで対応します。seed値は決定しておいてください。
+	<div class = "air"></div>
+	
+
+</body>
