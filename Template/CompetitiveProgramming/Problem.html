@@ -395,77 +395,74 @@ Yes
   };
 
 // ここより下は触らないでください
+  // パスワード生成用の基準時刻 (JST) を以下で定義してください。
+  const referenceJST = new Date('2025-01-01T00:00:00+09:00');
 
+// ここより下は触らないでください
 
   document.querySelector('.submit-btn').addEventListener('click', function() {
     // 既に表示されている結果エリアを削除（再提出時の重複防止）
     document.querySelectorAll('.result-msg').forEach(el => el.remove());
     document.querySelectorAll('.overall-result').forEach(el => el.remove());
 
-    // 各テストケースの submit-block について処理
     const submitBlocks = document.querySelectorAll('.submit-block');
     let overallCorrect = true;
-    let WA_cnt = 0; // 間違ったテストケース数
-    let AC_cnt = 0; // 正解したテストケース数
+    let WA_cnt = 0;
+    let AC_cnt = 0;
 
     submitBlocks.forEach(block => {
-      // 各ブロック内の h3 要素（例："input_01"）からケース番号を抽出
       const header = block.querySelector('h3');
-      let caseText = header ? header.textContent.trim() : "";
-      const match = caseText.match(/_(\d{2})/); // "01" 部分を抽出
+      const match = header.textContent.trim().match(/_(\d{2})/);
       if (!match) return;
       const caseNum = match[1];
-
-      // ユーザーが入力した出力（textarea）の値を取得
-      const textarea = block.querySelector('textarea');
-      const userOutput = textarea ? textarea.value.trim() : "";
-
-      // 正解と比較し、結果を表示するボックスを作成
+      const userOutput = block.querySelector('textarea').value.trim();
       const correct = expectedAnswers[caseNum];
       const resultMsg = document.createElement("div");
-      resultMsg.className = "result-msg result-box"; // 基本のスタイルを適用
+      resultMsg.className = "result-msg result-box";
 
       if (userOutput === correct) {
         resultMsg.textContent = `AC`;
-        resultMsg.classList.add("ac-box"); // AC の場合は緑
-        AC_cnt += 1;
+        resultMsg.classList.add("ac-box");
+        AC_cnt++;
       } else {
         resultMsg.textContent = `WA`;
-        resultMsg.classList.add("wa-box"); // WA の場合はオレンジ
+        resultMsg.classList.add("wa-box");
         overallCorrect = false;
-        WA_cnt += 1;
+        WA_cnt++;
       }
-      
-      // 各 submit-block の最後に結果ボックスを追加
       block.appendChild(resultMsg);
     });
 
-    // 全体の結果を提出ボタンの横に表示
     const overallDiv = document.createElement("div");
     overallDiv.className = "overall-result result-box";
-    
+
     if (WA_cnt === 0) {
       overallDiv.textContent = "AC";
-      overallDiv.classList.add("ac-box"); // 全体がACなら緑
+      overallDiv.classList.add("ac-box");
+
+      // 全ケースACならパスワードを生成・表示
+      const now = new Date();
+      const s = Math.floor((now - referenceJST) / 1000);
+      const n = Math.floor(Math.random() * 1000) + 1; // 1〜1000までのランダムn
+      const sum = s + n;
+      const bin = sum.toString(2);
+      const flipped = bin.split('').map(b => b === '0' ? '1' : '0').join('');
+      const password = `${n}z${flipped}`;
+      overallDiv.textContent += ` Password: ${password}`;
     } else {
       overallDiv.textContent = `${WA_cnt}/${AC_cnt + WA_cnt} WA`;
-      overallDiv.classList.add("wa-box"); // WAがある場合はオレンジ
+      overallDiv.classList.add("wa-box");
     }
-    
+
     overallDiv.style.display = "inline-block";
     overallDiv.style.marginLeft = "20px";
     document.querySelector('.submit-btn').insertAdjacentElement('afterend', overallDiv);
   });
 
   document.querySelector('.All-submit-btn').addEventListener('click', function() {
-    // 一括提出テキストエリアの内容を取得
     const bulkTextarea = document.querySelector('textarea[name="All-submit"]');
-    // 改行ごとに分割し、各行の両端の空白を削除
     const userLines = bulkTextarea.value.trim().split(/\r?\n/).map(line => line.trim());
-    // 空行を除外
     const filteredLines = userLines.filter(line => line !== "");
-
-    // 期待値を配列として用意
     const expectedArr = Object.keys(expectedAnswers)
       .sort()
       .map(key => expectedAnswers[key]);
@@ -473,13 +470,10 @@ Yes
     let overallCorrect = true;
     let resultHtml = "";
 
-    // まず行数が一致しているか確認
     if (filteredLines.length !== expectedArr.length) {
       overallCorrect = false;
       resultHtml += `出力行数が異なります。（期待：${expectedArr.length}行、あなたは：${filteredLines.length}行）<br>`;
     }
-    
-    // 各行ごとに正誤を判定
     for (let i = 0; i < expectedArr.length; i++) {
       if (filteredLines[i] === expectedArr[i]) {
         resultHtml += `テストケース ${i+1}: AC<br>`;
@@ -488,18 +482,26 @@ Yes
         overallCorrect = false;
       }
     }
-    
-    // 結果表示用のエリア（なければ作成）
+
     let overallDiv = document.querySelector('.overall-result.bulk');
     if (!overallDiv) {
       overallDiv = document.createElement("div");
       overallDiv.className = "overall-result bulk result-box";
       bulkTextarea.parentElement.appendChild(overallDiv);
     }
-    
-    // 全体の結果を表示
+
     if (overallCorrect) {
-      overallDiv.innerHTML = "AC";
+	   // 全ケースACならパスワードを生成・表示
+      const now = new Date();
+      const s = Math.floor((now - referenceJST) / 1000);
+      const n = Math.floor(Math.random() * 1000) + 1; // 1〜1000までのランダムn
+      const sum = s + n;
+      const bin = sum.toString(2);
+      const flipped = bin.split('').map(b => b === '0' ? '1' : '0').join('');
+      const password = `${n}z${flipped}`;
+
+
+      overallDiv.innerHTML = `AC password:${password}`;
       overallDiv.classList.remove("wa-box");
       overallDiv.classList.add("ac-box");
     } else {
@@ -509,6 +511,7 @@ Yes
     }
   });
 </script>
+
 <script>
     (function() {
       // ① 基準となる JST 時刻を指定（ISO8601＋タイムゾーンで表現）
