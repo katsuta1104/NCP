@@ -509,4 +509,37 @@ Yes
     }
   });
 </script>
+<script>
+    (function() {
+      // ① 基準となる JST 時刻を指定（ISO8601＋タイムゾーンで表現）
+      //    例: 2025年5月1日 12:00 JST
+      const targetJST = new Date('2025-04-01T12:00:00+09:00').getTime();
+
+      // ② 要素をまとめて取得
+      const elems = document.querySelectorAll('.URL');
+
+      // ③ 非表示／表示を切り替える関数
+      function updateVisibility() {
+        const now = Date.now();
+        if (now < targetJST) {
+          // 基準時刻前はすべて非表示
+          elems.forEach(el => {
+            el.style.display = 'none';
+          });
+        } else {
+          // 基準時刻を過ぎたら再表示し、以降のチェックを止める
+          elems.forEach(el => {
+            el.style.display = '';
+            // el.style.opacity = '1';
+          });
+          clearInterval(timer);
+        }
+      }
+
+      // ④ ページ読み込み直後にも実行
+      document.addEventListener('DOMContentLoaded', updateVisibility);
+      // ⑤ 以降は1秒ごとに確認
+      const timer = setInterval(updateVisibility, 1000);
+    })();
+  </script>
 </html>
