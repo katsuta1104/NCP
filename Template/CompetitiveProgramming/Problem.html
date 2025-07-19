@@ -173,18 +173,54 @@
 	  
   </style>
   <script>
-    function copyToClipboard(button) {
-      let preTag = button.previousElementSibling; // ボタンの直前の pre タグを取得
-      let text = preTag.innerText; // pre 内のテキストを取得
+function copyToClipboard(button) {
+  // コピーするテキストを取得
+  const preTag = button.previousElementSibling;
+  const text = preTag.innerText;
 
-      navigator.clipboard.writeText(text).then(() => {
-        button.innerText = "Copied!"; // ボタンのテキスト変更
-        setTimeout(() => button.innerText = "Copy", 1500); // 1.5秒後に戻す
-      }).catch(err => {
-        console.error("Missed:", err);
+  // 1) クリップボードAPI が使えるかつセキュアコンテキストならそちらを利用
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        button.innerText = "Copied!";
+        setTimeout(() => button.innerText = "Copy", 1500);
+      })
+      .catch(err => {
+        console.error("Clipboard API error:", err);
+        fallbackCopy(text, button);
       });
+  } else {
+    // 2) それ以外は execCommand フォールバック
+    fallbackCopy(text, button);
+  }
+}
+
+function fallbackCopy(text, button) {
+  // 一時テキストエリアを作って select → execCommand('copy')
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  // ページレイアウトを崩さないため非表示に
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  try {
+    const successful = document.execCommand("copy");
+    if (successful) {
+      button.innerText = "Copied!";
+      setTimeout(() => button.innerText = "Copy", 1500);
+    } else {
+      console.warn("execCommand('copy') was unsuccessful");
     }
-  </script>
+  } catch (err) {
+    console.error("execCommand('copy') error:", err);
+  }
+
+  document.body.removeChild(textarea);
+}
+</script>
 </head>
 
 <!--ここより上は絶対に触らないようお願いします-->
