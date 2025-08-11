@@ -142,8 +142,8 @@
       background-color: orange; /* WA のときはオレンジ */
     }
 
-	 .apply-mathjax{
-	 	line-height: 0.8em;
+ 	 .apply-mathjax{
+		line-height: 0.8em;
 	}
 	
 	pre{
@@ -170,7 +170,7 @@
   padding: 0.5em 0.5em 0;
 }
 
-	  
+      
   </style>
   <script>
 function copyToClipboard(button) {
@@ -234,7 +234,7 @@ function fallbackCopy(text, button) {
 制約は現実的な実行時間で解けますか？
 入出力例は手計算で確かめましたか？
 テストケースは制約いっぱいいっぱいまで含まれていますか？
-答えの移植間違いはありませんか？
+答えの移植間違いはありませんか?
 
 
 確認:
@@ -288,7 +288,7 @@ MathJaxで記述できましたか？
       <p>サンプル入力は以下の形式で与えられる。</p>
       <div class="code-box">
         <span class="apply-mathjax">
-				<!---ここに入力を記述。空白、改行も反映される--->
+			<!---ここに入力を記述。空白、改行も反映される--->
 </span>
 
       </div>
@@ -366,7 +366,7 @@ Yes
       <h2>出力例2</h2>
       <div class="code-box">
         <pre data-mathjax>
-<!---ここに出力例を置く。空白、改行も反映される。余計な改行が含まれてしまうのでこのコメントアウトは消す--->
+<!---ここに出力例を置く。空白、改行も反映される。余計な改行が含れてしまうのでこのコメントアウトは消す--->
 184
 </pre>
         <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
@@ -442,16 +442,64 @@ Yes
   // 各テストケースの正解を以下の形式に従って入力してください。
   const expectedAnswers = {
 
-    "01": "519000292",
-    "02": "607981449",
+    "01": "100",
+    "02": "Yes",
     
   };
 
 // ここより下は触らないでください
   // パスワード生成用の基準時刻 (JST) を以下で定義してください。
-  const referenceJST = new Date('2025-01-01T00:00:00+09:00');
+  const referenceJST = new Date('2025-08-01T12:00:00+09:00');
 
 // ここより下は触らないでください
+
+  // ========== ここから EPS 許容ロジック ==========
+  // defaultEPS を 0 にしておけば従来通り厳密一致
+  const defaultEPS = 0; // 例: 1e-6 <-> 10^{-6}
+
+  function parseTokens(str) {
+    return (str + "").trim().split(/\s+/).filter(t => t !== "");
+  }
+
+  function isNumericTokenArray(str) {
+    const toks = parseTokens(str);
+    if (toks.length === 0) return false;
+    return toks.every(t => {
+      // 空文字や非数値を弾く
+      const n = Number(t);
+      return t !== '' && !Number.isNaN(n);
+    });
+  }
+
+  /**
+   * userStr, expectedStr: 出力全体の文字列
+   * eps: 絶対誤差の閾値（数値）
+   * 戻り値: true = AC, false = WA
+   */
+  function compareWithEps(userStr, expectedStr, eps) {
+    const userT = parseTokens(userStr);
+    const expT = parseTokens(expectedStr);
+
+    // トークン数が異なれば不一致
+    if (userT.length !== expT.length) return false;
+
+    // もし期待解が数値トークン群なら数値比較（ユーザ出力も同様に数値である必要がある）
+    if (isNumericTokenArray(expT.join(' ')) && isNumericTokenArray(userT.join(' '))) {
+      for (let i = 0; i < expT.length; i++) {
+        const ue = Number(userT[i]);
+        const ex = Number(expT[i]);
+        const diff = Math.abs(ue - ex);
+        const relThreshold = eps * Math.max(1, Math.abs(ex));
+        if (!(diff <= eps || diff <= relThreshold)) return false;
+      }
+      return true;
+    } else {
+      // 非数値トークン（文字列）については従来どおりトークン結合で厳密一致
+      return userT.join(' ') === expT.join(' ');
+    }
+  }
+
+  // ========== ここまで EPS 許容ロジック ==========
 
   document.querySelector('.submit-btn').addEventListener('click', function() {
     // 既に表示されている結果エリアを削除（再提出時の重複防止）
@@ -473,7 +521,11 @@ Yes
       const resultMsg = document.createElement("div");
       resultMsg.className = "result-msg result-box";
 
-      if (userOutput === correct) {
+      // すべてのケースで defaultEPS を使う
+      const eps = defaultEPS;
+      const isOk = compareWithEps(userOutput, correct, eps);
+
+      if (isOk) {
         resultMsg.textContent = `AC`;
         resultMsg.classList.add("ac-box");
         AC_cnt++;
@@ -516,9 +568,11 @@ Yes
     const bulkTextarea = document.querySelector('textarea[name="All-submit"]');
     const userLines = bulkTextarea.value.trim().split(/\r?\n/).map(line => line.trim());
     const filteredLines = userLines.filter(line => line !== "");
+
+    // expectedAnswers をキー順で整列して key/value の配列にする
     const expectedArr = Object.keys(expectedAnswers)
       .sort()
-      .map(key => expectedAnswers[key]);
+      .map(key => ({ key: key, value: expectedAnswers[key] }));
 
     let overallCorrect = true;
     let resultHtml = "";
@@ -528,7 +582,11 @@ Yes
       resultHtml += `出力行数が異なります。（期待：${expectedArr.length}行、あなたは：${filteredLines.length}行）<br>`;
     }
     for (let i = 0; i < expectedArr.length; i++) {
-      if (filteredLines[i] === expectedArr[i]) {
+      const caseNum = expectedArr[i].key;
+      const correct = expectedArr[i].value;
+      const userLine = filteredLines[i] || "";
+      // ここでも defaultEPS のみを利用
+      if (compareWithEps(userLine, correct, defaultEPS)) {
         resultHtml += `テストケース ${i+1}: AC<br>`;
       } else {
         resultHtml += `テストケース ${i+1}: WA<br>`;
@@ -569,7 +627,7 @@ Yes
     (function() {
       // ① 基準となる JST 時刻を指定（ISO8601＋タイムゾーンで表現）
       //    例: 2025年5月1日 12:00 JST
-      const targetJST = new Date('2025-04-01T12:00:00+09:00').getTime();
+      const targetJST = new Date('2025-08-01T12:00:00+09:00').getTime();
 
       // ② 要素をまとめて取得
       const elems = document.querySelectorAll('.URL');
